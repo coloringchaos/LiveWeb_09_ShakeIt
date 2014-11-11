@@ -1,0 +1,113 @@
+<!-- //====================== MOBILE VERSION  ===========================
+///////================================================================== -->
+
+<html>
+
+   <head>
+      <script type="text/javascript" src="/socket.io/socket.io.js"></script>
+
+      <script type="text/javascript">
+
+         ////////////////////////// SOCKET STUFF /////////////////////////////
+
+         var socket = io.connect('/');
+                
+         socket.on('connect', function() {
+            console.log("Connected");
+         });
+
+         //RECEIVE HIGH VALUE FROM THE SERVER
+         socket.on('highAll', function(data){
+            console.log("RECEIVED HIGH FROM SERVER = " + data);
+            document.getElementById('div4').innerHTML = data;
+         });
+
+         /////////////////////// ACCELEROMETER STUFF /////////////////////// 
+
+         var myHigh = 0;
+ 
+         handleDeviceMotionEvent = function(e) {
+ 
+            var acc = e.acceleration,
+            maxAcc = Math.abs(acc.x + acc.y + acc.z);
+            theAcc = Math.floor(maxAcc);
+
+            //display the current acceleration
+            div3.innerHTML = theAcc;    
+
+            //if we have acceleration, send this to the value to the server
+            if (theAcc > 0) {
+               sendAccel(theAcc);
+            }
+
+            //save my high value
+            if (theAcc > myHigh){
+               myHigh = theAcc;
+               document.getElementById('div2').innerHTML = myHigh;
+               socket.emit('phoneHigh', myHigh);
+            }
+         };
+ 
+         window.addEventListener('devicemotion', handleDeviceMotionEvent, false);
+
+         var sendAccel = function(message) {
+            console.log("acceleration: " + message);
+            socket.emit('accelValue', message);
+         };
+
+      </script>
+   
+   </head>
+
+
+   <body>
+      <div id = "div1" >
+      </div>
+
+      <div id = "div2" >
+      </div>
+
+      <div id = "div3">
+      </div>
+
+      <div id = "div4">   
+      </div>
+   </body>
+
+
+   <style>
+
+      body{
+         font-family: Arial, Verdana, sans-serif;
+         text-align: center;
+         font-size: 200;
+      }
+      #div2{
+         position: absolute;
+         width: 600px;
+         height: 200px;
+         z-index: 5;
+         top: 250px;
+         left: 50%;
+         margin: -100px 0 0 -300px;
+      }
+      #div3{
+         position: absolute;
+         width: 600px;
+         height: 200px;
+         z-index: 5;
+         top: 600px;
+         left: 50%;
+         margin: -100px 0 0 -300px;
+      }
+      #div4{
+         position: absolute;
+         width: 600px;
+         height: 200px;
+         z-index: 5;
+         top: 950px;
+         left: 50%;
+         margin: -100px 0 0 -300px;
+      }
+   </style>
+</html>
